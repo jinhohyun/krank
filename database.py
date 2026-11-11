@@ -4,13 +4,27 @@ import json
 import sqlite3
 from pathlib import Path
 
+import os
+import shutil
+
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "krank.db"
 SEED_PATH = BASE_DIR / "seed_data.json"
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    target_db = DB_PATH
+    if os.environ.get("VERCEL"):
+        tmp_db = Path("/tmp/krank.db")
+        if not tmp_db.exists() and DB_PATH.exists():
+            try:
+                shutil.copy2(DB_PATH, tmp_db)
+            except Exception:
+                pass
+        if tmp_db.exists():
+            target_db = tmp_db
+
+    conn = sqlite3.connect(target_db)
     conn.row_factory = sqlite3.Row
     return conn
 
