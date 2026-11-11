@@ -1,11 +1,10 @@
 """SQLite Database ORM & Initialization for K-Rank (krank.db)"""
 
 import json
-import sqlite3
-from pathlib import Path
-
 import os
 import shutil
+import sqlite3
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "krank.db"
@@ -32,6 +31,13 @@ def get_db():
 def init_db():
     conn = get_db()
     with conn:
+        # Migrate or recreate table if schema updated
+        cur = conn.cursor()
+        table_info = cur.execute("PRAGMA table_info(artists)").fetchall()
+        column_names = [col[1] for col in table_info]
+        if table_info and "is_verified" not in column_names:
+            conn.executescript("DROP TABLE IF EXISTS artists; DROP TABLE IF EXISTS cheer_logs; DROP TABLE IF EXISTS fan_discussions;")
+
         conn.executescript("""
         CREATE TABLE IF NOT EXISTS artists (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,6 +54,8 @@ def init_db():
             signature_quote TEXT,
             tags_json TEXT,
             stats_json TEXT,
+            is_verified INTEGER DEFAULT 1,
+            generation TEXT DEFAULT '4세대',
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -55,6 +63,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             artist_id INTEGER,
             ip_hash TEXT,
+            vid TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (artist_id) REFERENCES artists (id)
         );
@@ -65,15 +74,25 @@ def init_db():
             stance TEXT,
             author TEXT,
             content TEXT,
+            is_official INTEGER DEFAULT 0,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (artist_id) REFERENCES artists (id)
         );
+
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT,
+            content TEXT,
+            email TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
         """)
 
-        # Check if seeding is needed
+        # Seed data if needed
         cur = conn.cursor()
         count = cur.execute("SELECT COUNT(*) FROM artists").fetchone()[0]
-        if count == 0 and SEED_PATH.exists():
+        if SEED_PATH.exists() and count < 50:
+            cur.execute("DELETE FROM artists")
             with open(SEED_PATH, "r", encoding="utf-8") as f:
                 seed_data = json.load(f)
 
@@ -86,8 +105,8 @@ def init_db():
 
                 cur.execute("""
                     INSERT INTO artists 
-                    (id, name, name_en, agency, debut_year, photo_url, avatar_url, kscore, tier, cheer_count, fandom_name, signature_quote, tags_json, stats_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (id, name, name_en, agency, debut_year, photo_url, avatar_url, kscore, tier, cheer_count, fandom_name, signature_quote, tags_json, stats_json, is_verified, generation)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     item.get("id"),
                     item.get("name"),
@@ -98,13 +117,15 @@ def init_db():
                     item.get("avatar_url"),
                     kscore,
                     tier,
-                    item.get("cheer_count", 1250),
+                    item.get("cheer_count", 0),
                     item.get("fandom_name"),
                     item.get("signature_quote"),
                     json.dumps(item.get("tags", []), ensure_ascii=False),
-                    json.dumps(stats, ensure_ascii=False)
+                    json.dumps(stats, ensure_ascii=False),
+                    1 if item.get("is_verified", True) else 0,
+                    item.get("generation", "4세대")
                 ))
-            print("✓ [K-Rank] Seed data successfully loaded into krank.db!")
+            print("✓ [K-Rank] 50 production artists re-seeded into krank.db!")
 
 
 if __name__ == "__main__":

@@ -4,76 +4,165 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>K-Rank (케이랭크) 🏆 - 글로벌 K-Pop 팩트 정량 랭킹 플랫폼</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="/static/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body class="bg-slate-950 text-slate-100 font-['Pretendard'] min-h-screen">
 
-  <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center font-bold text-xl shadow-lg shadow-pink-500/20">
-          K
+  <!-- Navigation / Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center font-black text-2xl shadow-lg shadow-pink-500/20 text-white">
+            K
+          </div>
+          <div>
+            <h1 class="text-xl font-black bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
+              K-RANK <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">v2.0 Pro</span>
+            </h1>
+            <p class="text-xs text-slate-400">100% 팩트 데이터 기반 글로벌 K-Pop 정량 랭킹</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-xl font-black bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
-            K-RANK <span class="text-xs px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">v1.0 Live</span>
-          </h1>
-          <p class="text-xs text-slate-400">100% 팩트 데이터 기반 글로벌 K-Pop 정량 랭킹</p>
+
+        <div class="flex items-center space-x-2 md:hidden">
+          <button id="themeToggleMobile" class="p-2 rounded-xl bg-slate-800 text-slate-300 text-sm">🌙</button>
         </div>
       </div>
-      <!-- Search -->
-      <div class="relative w-64">
-        <input type="text" id="searchInput" placeholder="아티스트, 소속사 검색..." 
-               class="w-full bg-slate-800/80 border border-slate-700 text-sm rounded-xl px-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+
+      <!-- Action Buttons & Search -->
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <a href="/methodology" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-700 transition flex items-center gap-1">
+          📐 산출 공식
+        </a>
+        <button onclick="openSupportModal()" class="px-3.5 py-2 rounded-xl bg-pink-600/20 hover:bg-pink-600/30 text-xs font-bold text-pink-300 border border-pink-500/30 transition flex items-center gap-1">
+          ☕ 개발자 후원
+        </button>
+        <button onclick="openFeedbackModal()" class="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-xs font-bold text-purple-300 border border-purple-500/30 transition flex items-center gap-1">
+          ✉️ 의견 보내기
+        </button>
+
+        <div class="relative flex-1 md:w-64">
+          <input type="text" id="searchInput" placeholder="아티스트, 소속사, 팬덤 검색..." 
+                 class="w-full bg-slate-800/90 border border-slate-700 text-xs rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition shadow-inner">
+        </div>
+
+        <button id="themeToggle" class="hidden md:flex p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm border border-slate-700 transition">
+          🌙
+        </button>
+      </div>
+    </div>
+
+    <!-- Sub Navigation: Category Tabs -->
+    <div class="border-t border-slate-800/60 bg-slate-900/50">
+      <div class="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2 overflow-x-auto text-xs scrollbar-none">
+        <button onclick="filterCategory('all')" class="cat-btn px-3 py-1.5 rounded-lg bg-pink-500 text-white font-bold transition whitespace-nowrap" data-cat="all">🔥 전체 랭킹 (K-Score)</button>
+        <button onclick="filterCategory('music')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="music">🎵 음원 퀸/왕 Top</button>
+        <button onclick="filterCategory('album')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="album">💿 음반 제왕 Top</button>
+        <button onclick="filterCategory('youtube')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="youtube">📺 유튜브 뷰왕 Top</button>
+        <button onclick="filterCategory('sns')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="sns">📲 소셜 파워 Top</button>
+        <button onclick="filterCategory('cheer')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="cheer">💖 실시간 팬덤화력</button>
+        <span class="text-slate-700">|</span>
+        <button onclick="filterGen('5세대')" class="gen-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-gen="5세대">🌟 5세대 신예</button>
+        <button onclick="filterGen('4세대')" class="gen-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-gen="4세대">⚡ 4세대 대표</button>
       </div>
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 py-8 space-y-10">
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-12">
 
     <!-- Top 3 Podium Section -->
     <section>
-      <h2 class="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2">
-        <span>🏆 Global Top 3 Leaders</span>
-        <span class="text-xs font-normal text-slate-400">(Spotify, Circle Chart, YouTube 팩트 합산)</span>
-      </h2>
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+          <span>🏆 Global Top 3 Leaders</span>
+          <span class="text-xs font-normal text-slate-400 hidden sm:inline">(Spotify, Circle Chart, YouTube 팩트 데이터 정량 산출)</span>
+        </h2>
+        <span class="text-xs text-pink-400 font-semibold">50팀 아티스트 시딩 완료</span>
+      </div>
       <div id="podiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- JS rendered top 3 -->
       </div>
     </section>
 
-    <!-- All Artists Ranking List -->
+    <!-- All 50 Artists Grid Section -->
     <section>
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-          <span>🔥 K-Rank Overall Ranking</span>
+          <span id="gridTitle">🔥 K-Rank Overall Leaderboard</span>
         </h2>
         <div class="text-xs text-slate-400">
-          카드 이미지 클릭 시 <span class="text-pink-400 font-semibold">3D 실사진 플립</span> | <span class="text-purple-400 font-semibold">레이더 차트 보기</span>
+          카드 클릭 시 <span class="text-pink-400 font-semibold">3D 아바타/실사진 플립</span> | <span class="text-purple-400 font-semibold">6축 레이더 차트</span>
         </div>
       </div>
 
       <div id="artistGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- JS rendered artist cards -->
+        <!-- JS rendered 50 artist cards -->
       </div>
     </section>
 
   </main>
 
-  <!-- Modal for 6-Axis Radar Chart & Discussion Feed -->
+  <!-- Detail Modal for 6-Axis Chart & Discussions -->
   <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl">
       <button id="closeModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 text-2xl font-bold">&times;</button>
-      
-      <div id="modalContent" class="space-y-6">
-        <!-- JS filled detail & radar chart -->
+      <div id="modalContent" class="space-y-6"></div>
+    </div>
+  </div>
+
+  <!-- Developer Support Modal -->
+  <div id="supportModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 relative shadow-2xl space-y-4">
+      <button onclick="closeSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 text-xl font-bold">&times;</button>
+      <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+        <span>☕ K-Rank 개발자 후원하기</span>
+      </h3>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        K-Rank는 100% 팩트 데이터 기반 공정 랭킹을 유지하기 위해 부정 유료 투표 결제를 받지 않습니다. 서버 유지비 후원은 개발자에게 큰 힘이 됩니다!
+      </p>
+      <div class="space-y-2 pt-2">
+        <a href="https://toss.me/jinhopolirank" target="_blank" class="block w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-center text-xs rounded-xl transition shadow">
+          💙 토스(Toss)로 1초 후원하기
+        </a>
+        <a href="https://qr.kakaopay.com/polirankdev" target="_blank" class="block w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-center text-xs rounded-xl transition shadow">
+          💛 카카오페이(KakaoPay)로 후원하기
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 relative shadow-2xl space-y-4">
+      <button onclick="closeFeedbackModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 text-xl font-bold">&times;</button>
+      <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+        <span>✉️ 의견 및 제보 보내기</span>
+      </h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">카테고리</label>
+          <select id="fbCategory" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200">
+            <option value="데이터오류">데이터 오류 제보</option>
+            <option value="신규아티스트">신규 아티스트 추가 요청</option>
+            <option value="기능제안">기능 개선 제안</option>
+            <option value="기타">기타 문의</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">의견 내용</label>
+          <textarea id="fbContent" rows="4" placeholder="상세한 의견을 입력해 주세요..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-pink-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">답변받을 이메일 (선택)</label>
+          <input type="email" id="fbEmail" placeholder="example@email.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200">
+        </div>
+        <button onclick="submitFeedback()" class="w-full py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition">
+          보내기
+        </button>
       </div>
     </div>
   </div>
