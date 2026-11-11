@@ -1,0 +1,97 @@
+"""SQLite Database ORM & Initialization for K-Rank (krank.db)"""
+
+import json
+import sqlite3
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "krank.db"
+SEED_PATH = BASE_DIR / "seed_data.json"
+
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db()
+    with conn:
+        conn.executescript("""
+        CREATE TABLE IF NOT EXISTS artists (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            name_en TEXT NOT NULL,
+            agency TEXT,
+            debut_year INTEGER,
+            photo_url TEXT,
+            avatar_url TEXT,
+            kscore REAL DEFAULT 0.0,
+            tier TEXT DEFAULT 'C',
+            cheer_count INTEGER DEFAULT 0,
+            fandom_name TEXT,
+            signature_quote TEXT,
+            tags_json TEXT,
+            stats_json TEXT,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS cheer_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            artist_id INTEGER,
+            ip_hash TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (artist_id) REFERENCES artists (id)
+        );
+
+        CREATE TABLE IF NOT EXISTS fan_discussions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            artist_id INTEGER,
+            stance TEXT,
+            author TEXT,
+            content TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (artist_id) REFERENCES artists (id)
+        );
+        """)
+
+        # Check if seeding is needed
+        cur = conn.cursor()
+        count = cur.execute("SELECT COUNT(*) FROM artists").fetchone()[0]
+        if count == 0 and SEED_PATH.exists():
+            with open(SEED_PATH, "r", encoding="utf-8") as f:
+                seed_data = json.load(f)
+
+            from scoring import calculate_kscore, calculate_tier
+
+            for item in seed_data:
+                stats = item.get("stats", {})
+                kscore = calculate_kscore(stats)
+                tier = calculate_tier(kscore)
+
+                cur.execute("""
+                    INSERT INTO artists 
+                    (id, name, name_en, agency, debut_year, photo_url, avatar_url, kscore, tier, cheer_count, fandom_name, signature_quote, tags_json, stats_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    item.get("id"),
+                    item.get("name"),
+                    item.get("name_en"),
+                    item.get("agency"),
+                    item.get("debut_year"),
+                    item.get("photo_url"),
+                    item.get("avatar_url"),
+                    kscore,
+                    tier,
+                    item.get("cheer_count", 1250),
+                    item.get("fandom_name"),
+                    item.get("signature_quote"),
+                    json.dumps(item.get("tags", []), ensure_ascii=False),
+                    json.dumps(stats, ensure_ascii=False)
+                ))
+            print("✓ [K-Rank] Seed data successfully loaded into krank.db!")
+
+
+if __name__ == "__main__":
+    init_db()

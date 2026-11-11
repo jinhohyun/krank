@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K-Rank (케이랭크) 🏆 - 글로벌 K-Pop 팩트 정량 랭킹 플랫폼</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-950 text-slate-100 font-['Pretendard'] min-h-screen">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center font-bold text-xl shadow-lg shadow-pink-500/20">
+          K
+        </div>
+        <div>
+          <h1 class="text-xl font-black bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
+            K-RANK <span class="text-xs px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">v1.0 Live</span>
+          </h1>
+          <p class="text-xs text-slate-400">100% 팩트 데이터 기반 글로벌 K-Pop 정량 랭킹</p>
+        </div>
+      </div>
+      <!-- Search -->
+      <div class="relative w-64">
+        <input type="text" id="searchInput" placeholder="아티스트, 소속사 검색..." 
+               class="w-full bg-slate-800/80 border border-slate-700 text-sm rounded-xl px-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition">
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Top 3 Podium Section -->
+    <section>
+      <h2 class="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2">
+        <span>🏆 Global Top 3 Leaders</span>
+        <span class="text-xs font-normal text-slate-400">(Spotify, Circle Chart, YouTube 팩트 합산)</span>
+      </h2>
+      <div id="podiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- JS rendered top 3 -->
+      </div>
+    </section>
+
+    <!-- All Artists Ranking List -->
+    <section>
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+          <span>🔥 K-Rank Overall Ranking</span>
+        </h2>
+        <div class="text-xs text-slate-400">
+          카드 이미지 클릭 시 <span class="text-pink-400 font-semibold">3D 실사진 플립</span> | <span class="text-purple-400 font-semibold">레이더 차트 보기</span>
+        </div>
+      </div>
+
+      <div id="artistGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- JS rendered artist cards -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal for 6-Axis Radar Chart & Discussion Feed -->
+  <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
+      <button id="closeModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 text-2xl font-bold">&times;</button>
+      
+      <div id="modalContent" class="space-y-6">
+        <!-- JS filled detail & radar chart -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

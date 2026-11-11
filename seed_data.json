@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "name": "방탄소년단",
+    "name_en": "BTS",
+    "agency": "하이브 / 빅히트 뮤직",
+    "debut_year": 2013,
+    "photo_url": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=BTS&backgroundColor=b6e3f4",
+    "fandom_name": "아미 (ARMY)",
+    "signature_quote": "팀워크가 꿈을 이루게 해줍니다. (Teamwork makes the dream work)",
+    "tags": ["#21세기팝아이콘", "#빌보드HOT100_1위", "#글로벌팬덤아미"],
+    "stats": {
+      "music_stream": 98.5,
+      "album_sales": 99.0,
+      "youtube_views": 97.0,
+      "sns_growth": 96.5,
+      "google_buzz": 99.0,
+      "fandom_power": 99.5
+    }
+  },
+  {
+    "id": 2,
+    "name": "BLACKPINK",
+    "name_en": "BLACKPINK",
+    "agency": "YG 엔터테인먼트",
+    "debut_year": 2016,
+    "photo_url": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=BLACKPINK&backgroundColor=ffd5e5",
+    "fandom_name": "블링크 (BLINK)",
+    "signature_quote": "BLACKPINK in your area! 언제나 최고의 무대로 보답할게요.",
+    "tags": ["#글로벌퀸", "#유튜브구독자1위", "#코첼라헤드라이너"],
+    "stats": {
+      "music_stream": 96.0,
+      "album_sales": 94.5,
+      "youtube_views": 99.5,
+      "sns_growth": 98.0,
+      "google_buzz": 97.5,
+      "fandom_power": 96.5
+    }
+  },
+  {
+    "id": 3,
+    "name": "NewJeans",
+    "name_en": "NewJeans",
+    "agency": "어도어 (ADOR)",
+    "debut_year": 2022,
+    "photo_url": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=NewJeans&backgroundColor=d1d5db",
+    "fandom_name": "버니즈 (Bunnies)",
+    "signature_quote": "매일 찾게 되고 언제 입어도 질리지 않는 청바지처럼!",
+    "tags": ["#이지리스닝", "#빌보드200_1위", "#Y2K감성"],
+    "stats": {
+      "music_stream": 97.0,
+      "album_sales": 92.0,
+      "youtube_views": 93.5,
+      "sns_growth": 95.0,
+      "google_buzz": 94.0,
+      "fandom_power": 93.0
+    }
+  },
+  {
+    "id": 4,
+    "name": "Stray Kids",
+    "name_en": "Stray Kids",
+    "agency": "JYP 엔터테인먼트",
+    "debut_year": 2018,
+    "photo_url": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=StrayKids&backgroundColor=fef3c7",
+    "fandom_name": "스테이 (STAY)",
+    "signature_quote": "Stray Kids Everywhere All Around the World!",
+    "tags": ["#자체제작돌", "#빌보드200_4연속1위", "#글로벌음반강자"],
+    "stats": {
+      "music_stream": 91.5,
+      "album_sales": 98.0,
+      "youtube_views": 92.0,
+      "sns_growth": 93.0,
+      "google_buzz": 92.5,
+      "fandom_power": 95.0
+    }
+  },
+  {
+    "id": 5,
+    "name": "세븐틴",
+    "name_en": "SEVENTEEN",
+    "agency": "하이브 / 플레디스",
+    "debut_year": 2015,
+    "photo_url": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=SEVENTEEN&backgroundColor=e0e7ff",
+    "fandom_name": "캐럿 (CARAT)",
+    "signature_quote": "손을 잡고 함께 걸어가자, 세븐틴과 캐럿의 칼군무와 에너지!",
+    "tags": ["#자체제작칼군무", "#단일앨범500만장", "#음반제왕"],
+    "stats": {
+      "music_stream": 92.0,
+      "album_sales": 99.5,
+      "youtube_views": 89.5,
+      "sns_growth": 90.0,
+      "google_buzz": 91.0,
+      "fandom_power": 96.0
+    }
+  },
+  {
+    "id": 6,
+    "name": "aespa",
+    "name_en": "aespa",
+    "agency": "SM 엔터테인먼트",
+    "debut_year": 2020,
+    "photo_url": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=aespa&backgroundColor=f3e8ff",
+    "fandom_name": "마이 (MY)",
+    "signature_quote": "쇠맛 쇠맛! 메타버스 세계관과 차원 다른 카리스마!",
+    "tags": ["#쇠맛Kpop", "#Supernova히트", "#메타버스아이돌"],
+    "stats": {
+      "music_stream": 96.5,
+      "album_sales": 91.0,
+      "youtube_views": 94.0,
+      "sns_growth": 92.0,
+      "google_buzz": 95.0,
+      "fandom_power": 91.5
+    }
+  },
+  {
+    "id": 7,
+    "name": "IVE",
+    "name_en": "IVE",
+    "agency": "스타쉽 엔터테인먼트",
+    "debut_year": 2021,
+    "photo_url": "https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=IVE&backgroundColor=fce7f3",
+    "fandom_name": "다이브 (DIVE)",
+    "signature_quote": "나르시시즘과 주체적인 자신감, 그것이 바로 IVE!",
+    "tags": ["#자기애아이콘", "#음원퀸", "#초통령아이돌"],
+    "stats": {
+      "music_stream": 95.5,
+      "album_sales": 90.5,
+      "youtube_views": 91.0,
+      "sns_growth": 91.5,
+      "google_buzz": 92.0,
+      "fandom_power": 90.0
+    }
+  },
+  {
+    "id": 8,
+    "name": "TWICE",
+    "name_en": "TWICE",
+    "agency": "JYP 엔터테인먼트",
+    "debut_year": 2015,
+    "photo_url": "https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?auto=format&fit=crop&w=600&q=80",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=TWICE&backgroundColor=fee2e2",
+    "fandom_name": "원스 (ONCE)",
+    "signature_quote": "One in a Million! 안녕하세요 트와이스입니다!",
+    "tags": ["#글로벌스타디움투어", "#국민걸그룹", "#9인9색"],
+    "stats": {
+      "music_stream": 89.0,
+      "album_sales": 91.5,
+      "youtube_views": 93.0,
+      "sns_growth": 89.5,
+      "google_buzz": 90.0,
+      "fandom_power": 92.0
+    }
+  }
+]
