@@ -1,4 +1,4 @@
-"""SQLite Database ORM & Initialization for K-Rank (krank.db)"""
+"""SQLite Database ORM & Initialization for K-Rank (krank.db) with Bilingual Support"""
 
 import json
 import os
@@ -35,7 +35,7 @@ def init_db():
         cur = conn.cursor()
         table_info = cur.execute("PRAGMA table_info(artists)").fetchall()
         column_names = [col[1] for col in table_info]
-        if table_info and "is_verified" not in column_names:
+        if table_info and "agency_en" not in column_names:
             conn.executescript("DROP TABLE IF EXISTS artists; DROP TABLE IF EXISTS cheer_logs; DROP TABLE IF EXISTS fan_discussions;")
 
         conn.executescript("""
@@ -44,6 +44,7 @@ def init_db():
             name TEXT NOT NULL,
             name_en TEXT NOT NULL,
             agency TEXT,
+            agency_en TEXT,
             debut_year INTEGER,
             photo_url TEXT,
             avatar_url TEXT,
@@ -51,11 +52,15 @@ def init_db():
             tier TEXT DEFAULT 'C',
             cheer_count INTEGER DEFAULT 0,
             fandom_name TEXT,
+            fandom_name_en TEXT,
             signature_quote TEXT,
+            signature_quote_en TEXT,
             tags_json TEXT,
+            tags_en_json TEXT,
             stats_json TEXT,
             is_verified INTEGER DEFAULT 1,
             generation TEXT DEFAULT '4세대',
+            generation_en TEXT DEFAULT '4th Gen',
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -105,13 +110,14 @@ def init_db():
 
                 cur.execute("""
                     INSERT INTO artists 
-                    (id, name, name_en, agency, debut_year, photo_url, avatar_url, kscore, tier, cheer_count, fandom_name, signature_quote, tags_json, stats_json, is_verified, generation)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (id, name, name_en, agency, agency_en, debut_year, photo_url, avatar_url, kscore, tier, cheer_count, fandom_name, fandom_name_en, signature_quote, signature_quote_en, tags_json, tags_en_json, stats_json, is_verified, generation, generation_en)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     item.get("id"),
                     item.get("name"),
                     item.get("name_en"),
                     item.get("agency"),
+                    item.get("agency_en", item.get("agency")),
                     item.get("debut_year"),
                     item.get("photo_url"),
                     item.get("avatar_url"),
@@ -119,13 +125,17 @@ def init_db():
                     tier,
                     item.get("cheer_count", 0),
                     item.get("fandom_name"),
+                    item.get("fandom_name_en", item.get("fandom_name")),
                     item.get("signature_quote"),
+                    item.get("signature_quote_en", item.get("signature_quote")),
                     json.dumps(item.get("tags", []), ensure_ascii=False),
+                    json.dumps(item.get("tags_en", []), ensure_ascii=False),
                     json.dumps(stats, ensure_ascii=False),
                     1 if item.get("is_verified", True) else 0,
-                    item.get("generation", "4세대")
+                    item.get("generation", "4세대"),
+                    item.get("generation_en", "4th Gen")
                 ))
-            print("✓ [K-Rank] 50 production artists re-seeded into krank.db!")
+            print("✓ [K-Rank] 50 production artists re-seeded with bilingual data into krank.db!")
 
 
 if __name__ == "__main__":

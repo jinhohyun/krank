@@ -71,13 +71,13 @@ def get_artists(
         params = []
 
         if query:
-            sql += " AND (name LIKE ? OR name_en LIKE ? OR agency LIKE ? OR fandom_name LIKE ?)"
+            sql += " AND (name LIKE ? OR name_en LIKE ? OR agency LIKE ? OR agency_en LIKE ? OR fandom_name LIKE ? OR fandom_name_en LIKE ?)"
             q = f"%{query}%"
-            params.extend([q, q, q, q])
+            params.extend([q, q, q, q, q, q])
 
         if gen:
-            sql += " AND generation = ?"
-            params.append(gen)
+            sql += " AND (generation = ? OR generation_en = ?)"
+            params.extend([gen, gen])
 
         # Dynamic Sorting
         if sort == "music":
@@ -99,6 +99,7 @@ def get_artists(
     for r in rows:
         d = dict(r)
         d["tags"] = json.loads(d["tags_json"]) if d.get("tags_json") else []
+        d["tags_en"] = json.loads(d["tags_en_json"]) if d.get("tags_en_json") else []
         d["stats"] = json.loads(d["stats_json"]) if d.get("stats_json") else {}
         results.append(d)
 
@@ -116,6 +117,7 @@ def get_artist_detail(artist_id: int):
 
         d = dict(row)
         d["tags"] = json.loads(d["tags_json"]) if d.get("tags_json") else []
+        d["tags_en"] = json.loads(d["tags_en_json"]) if d.get("tags_en_json") else []
         d["stats"] = json.loads(d["stats_json"]) if d.get("stats_json") else {}
 
     return d
