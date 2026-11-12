@@ -10,13 +10,31 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from pathlib import Path
 
-from database import get_db, init_db
+import sys
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+WORKSPACE_ROOT = BASE_DIR.parent
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
+
+import krank_mvp.database as krank_db
+get_db = krank_db.get_db
+init_db = krank_db.init_db
+from krank_core_config import KRANK_CONFIG, KrankScoringEngine
+from rank_core import create_ranking_app, BaseDatabaseManager
+
+# Rank Core 서브 앱 마운트
+core_engine = KrankScoringEngine(KRANK_CONFIG.weights)
+core_db_path = str(BASE_DIR / KRANK_CONFIG.db_filename)
+core_db = BaseDatabaseManager(core_db_path)
+core_app = create_ranking_app(KRANK_CONFIG, core_db, core_engine)
+
 STATIC_DIR = BASE_DIR / "static"
 VID_COOKIE_NAME = "krank_vid"
 
 app = FastAPI(title="K-Rank API", version="2.0.0")
+app.mount("/core", core_app)
 
 # Mount Static Files
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
