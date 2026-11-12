@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>K-Score 6대 지표 산출 방법론 📐 - K-Rank</title>
+  <title data-i18n="methTitle">K-Score Methodology 📐 - K-Rank</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
@@ -20,93 +20,108 @@
           <h1 class="text-xl font-black bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
             K-RANK <span class="text-xs px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">Methodology</span>
           </h1>
-          <p class="text-xs text-slate-400">100% 글로벌 팩트 데이터 기반 K-Score 검증 알고리즘</p>
+          <p class="text-xs text-slate-400" data-i18n="tagline">100% Fact Data Driven Global K-Pop Quantitative Ranking</p>
         </div>
       </div>
-      <a href="/" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 transition">
-        ← 메인 랭킹 돌아가기
-      </a>
+
+      <div class="flex items-center gap-3">
+        <select id="langSelect" onchange="setLang(this.value)" class="bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-pink-500 transition cursor-pointer">
+          <option value="en">🌐 English (US)</option>
+          <option value="ko">🇰🇷 한국어 (KR)</option>
+        </select>
+
+        <a href="/" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 transition" data-i18n="backToMain">
+          ← Back to Main Leaderboard
+        </a>
+      </div>
     </div>
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-10 space-y-12">
     
-    <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-6">
+    <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl">
       <h2 class="text-2xl font-extrabold text-pink-400 flex items-center gap-2">
-        <span>📐 K-Score 6대 가중 산출 수식</span>
+        <span data-i18n="methMainTitle">📐 K-Score 6-Axis Formula & Methodology</span>
       </h2>
-      <p class="text-sm text-slate-300 leading-relaxed">
-        K-Rank는 주관적 인기 투표, 조작 가능성, 유료 투표 결제를 전면 배제하고, 글로벌 공식 팩트 지표(Spotify, Circle Chart, YouTube, SNS, Google Trends, 실시간 응원)만을 100점 만점으로 정량 산출합니다.
+      <p class="text-sm text-slate-300 leading-relaxed" data-i18n="methDesc">
+        K-Rank completely eliminates subjective voting, manipulation, and paid voting fees. We calculate objective K-Scores (0-100) using 100% verified global fact metrics: Spotify, Circle Chart, YouTube, SNS, Google Trends, and real-time fandom power.
       </p>
 
       <div class="p-6 rounded-2xl bg-slate-950 border border-purple-500/30 text-center font-mono text-xs sm:text-sm text-purple-300 shadow-inner overflow-x-auto">
-        K-Score = (0.30 × S_음원) + (0.25 × S_음반) + (0.20 × S_유튜브) + (0.15 × S_소셜) + (0.05 × S_구글버즈) + (0.05 × S_화력)
+        K-Score = (0.30 × S_Music) + (0.25 × S_Album) + (0.20 × S_YouTube) + (0.15 × S_SNS) + (0.05 × S_Buzz) + (0.05 × S_Power)
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
         <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
           <h3 class="font-bold text-slate-100 mb-2 text-sm flex items-center gap-2">
-            <span>🎵 1. 글로벌 음원 지수 (30%)</span>
+            <span>🎵 1. Global Music Stream Index (30%)</span>
           </h3>
           <p class="text-xs text-slate-400">
-            Spotify Web API 글로벌 일일/주간 차트 스트리밍 재생수 및 Apple Music 글로벌 차트 정량 반영.
+            Spotify Web API Global Daily/Weekly Charts & Apple Music Global Streams.
           </p>
         </div>
 
         <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
           <h3 class="font-bold text-slate-100 mb-2 text-sm flex items-center gap-2">
-            <span>💿 2. 음반 판매 지수 (25%)</span>
+            <span>💿 2. Album Sales Index (25%)</span>
           </h3>
           <p class="text-xs text-slate-400">
-            Circle Chart (구 가온차트) 공식 데이터 기반 앨범 초동 및 누적 음반 판매량 정량화.
+            Circle Chart Official Album Sales (1st-week & cumulative physical album sales).
           </p>
         </div>
 
         <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
           <h3 class="font-bold text-slate-100 mb-2 text-sm flex items-center gap-2">
-            <span>📺 3. 유튜브 영상 지수 (20%)</span>
+            <span>📺 3. YouTube Video Index (20%)</span>
           </h3>
           <p class="text-xs text-slate-400">
-            YouTube Data API v3 연동 official 뮤직비디오 조회수, 좋아요, 댓글 증가율 정량 집계.
+            YouTube Data API v3 verified Official Music Video views, likes & engagement growth.
           </p>
         </div>
 
         <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
           <h3 class="font-bold text-slate-100 mb-2 text-sm flex items-center gap-2">
-            <span>📲 4. 소셜 성장률 (15%)</span>
+            <span>📲 4. Social Growth Index (15%)</span>
           </h3>
           <p class="text-xs text-slate-400">
-            Instagram 및 X(Twitter) 글로벌 팔로워 주간 증가량 및 공식 키워드 언론 언급량.
+            Instagram & X (Twitter) global follower weekly growth & media mentions.
           </p>
         </div>
 
         <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
           <h3 class="font-bold text-slate-100 mb-2 text-sm flex items-center gap-2">
-            <span>🔍 5. 구글 글로벌 버즈 (5%)</span>
+            <span>🔍 5. Google Global Buzz Index (5%)</span>
           </h3>
           <p class="text-xs text-slate-400">
-            Google Trends API 기반 전 세계 포털 검색 관심도 트렌드 지수.
+            Google Trends API worldwide search volume & global interest trends.
           </p>
         </div>
 
         <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
           <h3 class="font-bold text-slate-100 mb-2 text-sm flex items-center gap-2">
-            <span>🔥 6. 실시간 팬덤 화력 (5%)</span>
+            <span>🔥 6. Real-Time Fandom Power (5%)</span>
           </h3>
           <p class="text-xs text-slate-400">
-            K-Rank 자체 3중 중복 방지 연동 1클릭 실시간 하트 응원 로그 수 스케일링.
+            K-Rank 3-Layer anti-duplicate verified real-time 1-click cheer logs.
           </p>
         </div>
       </div>
     </section>
 
-    <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-4">
-      <h2 class="text-xl font-bold text-slate-100">🛡️ 중복 부정 응원 방지 메커니즘</h2>
-      <p class="text-xs text-slate-400 leading-relaxed">
-        K-Rank는 매크로 및 매니아 팬덤의 부정 연타 응원을 방지하기 위해 <strong>HttpOnly Cookie (krank_vid) + Client IP/UA SHA-256 해시 듀얼 검증 시스템</strong>을 운영하며 24시간 동안 중복 투표를 원천 차단합니다.
+    <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-4 shadow-2xl">
+      <h2 class="text-xl font-bold text-slate-100" data-i18n="antiDuplicateTitle">🛡️ Anti-Duplicate Voting Prevention</h2>
+      <p class="text-xs text-slate-400 leading-relaxed" data-i18n="antiDuplicateDesc">
+        To prevent bot spamming and macro manipulation, K-Rank utilizes HttpOnly Cookie (krank_vid) + Client IP/UA SHA-256 dual verification to enforce a 24-hour single-cheer limit per artist.
       </p>
     </section>
 
   </main>
+
+  <script src="/static/i18n.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      initLang();
+    });
+  </script>
 </body>
 </html>

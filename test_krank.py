@@ -1,4 +1,4 @@
-"""Comprehensive Unit & Integration Tests for K-Rank (50 Artists & Anti-Duplicate Architecture)"""
+"""Comprehensive Unit & Integration Tests for K-Rank (50 Artists & Global i18n)"""
 
 import unittest
 import json
@@ -8,12 +8,18 @@ from app import app
 from database import init_db, get_db
 from scoring import calculate_kscore, calculate_tier
 
-class TestKRankPro(unittest.TestCase):
+class TestKRankGlobal(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         init_db()
         cls.client = TestClient(app)
+
+    def setUp(self):
+        # Clear cheer logs for predictable anti-duplicate tests
+        conn = get_db()
+        with conn:
+            conn.execute("DELETE FROM cheer_logs")
 
     def test_01_scoring_algorithm(self):
         stats = {
@@ -61,13 +67,13 @@ class TestKRankPro(unittest.TestCase):
     def test_05_methodology_page_serving(self):
         res = self.client.get("/methodology")
         self.assertEqual(res.status_code, 200)
-        self.assertIn("K-Score 6대 가중 산출 수식", res.text)
+        self.assertIn("K-Score 6-Axis Formula & Methodology", res.text)
 
     def test_06_feedback_submission(self):
         res = self.client.post("/api/feedback", json={
             "category": "기능제안",
-            "content": "K-Rank 서비스 최고입니다! 50팀 라인업 훌륭해요.",
-            "email": "test@example.com"
+            "content": "K-Rank global i18n support is awesome!",
+            "email": "global@example.com"
         })
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()["status"], "success")

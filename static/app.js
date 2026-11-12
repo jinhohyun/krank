@@ -1,4 +1,4 @@
-/* K-Rank Frontend Application Logic (v2.0 Pro) */
+/* K-Rank Frontend Application Logic (v2.0 Global i18n) */
 
 let artistsData = [];
 let myCheeredArtistIds = new Set();
@@ -7,6 +7,9 @@ let currentSort = "kscore";
 let currentGen = "";
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (typeof initLang === "function") {
+    initLang();
+  }
   fetchMyCheers();
   fetchArtists();
 
@@ -55,11 +58,33 @@ async function fetchArtists(query = "") {
   }
 }
 
+function updateDynamicTitles() {
+  const titles = {
+    all: typeof t === "function" ? t("gridTitleOverall") : "🔥 Overall Leaderboard",
+    music: typeof t === "function" ? t("gridTitleMusic") : "🎵 Music Stream Top",
+    album: typeof t === "function" ? t("gridTitleAlbum") : "💿 Album Sales Top",
+    youtube: typeof t === "function" ? t("gridTitleYoutube") : "📺 YouTube Views Top",
+    sns: typeof t === "function" ? t("gridTitleSns") : "📲 Social Power Top",
+    cheer: typeof t === "function" ? t("gridTitleCheer") : "💖 Live Fandom Power"
+  };
+  
+  if (currentGen) {
+    const genTitle = currentGen === "5세대" ? (typeof t === "function" ? t("gridTitleGen5") : "🌟 5th Gen") : (typeof t === "function" ? t("gridTitleGen4") : "⚡ 4th Gen");
+    document.getElementById("gridTitle").innerText = genTitle;
+  } else {
+    document.getElementById("gridTitle").innerText = titles[currentSort] || titles.all;
+  }
+
+  if (artistsData && artistsData.length > 0) {
+    renderPodium(artistsData.slice(0, 3));
+    renderGrid(artistsData);
+  }
+}
+
 function filterCategory(sortKey) {
   currentSort = sortKey;
   currentGen = "";
 
-  // Update button active states
   document.querySelectorAll(".cat-btn").forEach(btn => {
     if (btn.dataset.cat === sortKey) {
       btn.className = "cat-btn px-3 py-1.5 rounded-lg bg-pink-500 text-white font-bold transition whitespace-nowrap";
@@ -72,16 +97,7 @@ function filterCategory(sortKey) {
     btn.className = "gen-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap";
   });
 
-  const titles = {
-    all: "🔥 K-Rank Overall Leaderboard",
-    music: "🎵 글로벌 음원 퀸/왕 Top Leaderboard",
-    album: "💿 음반 초동 및 누적 제왕 Top Leaderboard",
-    youtube: "📺 유튜브 MV 뷰왕 Top Leaderboard",
-    sns: "📲 소셜 파워 Top Leaderboard",
-    cheer: "💖 실시간 팬덤 화력 랭킹"
-  };
-  document.getElementById("gridTitle").innerText = titles[sortKey] || "🔥 Overall Leaderboard";
-
+  updateDynamicTitles();
   fetchArtists(document.getElementById("searchInput").value.trim());
 }
 
@@ -97,7 +113,7 @@ function filterGen(genKey) {
     }
   });
 
-  document.getElementById("gridTitle").innerText = `🌟 ${genKey} 대표 아티스트 랭킹`;
+  updateDynamicTitles();
   fetchArtists(document.getElementById("searchInput").value.trim());
 }
 
@@ -108,7 +124,11 @@ function renderPodium(top3) {
     return;
   }
 
-  const medals = ["🥇 1위 (Legend)", "🥈 2위 (Top)", "🥉 3위 (Elite)"];
+  const medals = [
+    typeof t === "function" ? t("medal1") : "🥇 1st",
+    typeof t === "function" ? t("medal2") : "🥈 2nd",
+    typeof t === "function" ? t("medal3") : "🥉 3rd"
+  ];
   const bgGradients = [
     "from-amber-500/20 to-yellow-600/10 border-amber-500/40",
     "from-slate-400/20 to-slate-600/10 border-slate-400/40",
@@ -117,6 +137,10 @@ function renderPodium(top3) {
 
   container.innerHTML = top3.map((artist, idx) => {
     const isCheered = myCheeredArtistIds.has(artist.id);
+    const verifiedTxt = typeof t === "function" ? t("verifiedBadge") : "✓ Verified";
+    const chartTxt = typeof t === "function" ? t("chartBtn") : "📊 Chart";
+    const cheerTxt = isCheered ? (typeof t === "function" ? t("cheeredDoneBtn") : "💖 Cheered") : (typeof t === "function" ? t("cheerBtn") : "💖 Cheer");
+
     return `
     <div class="bg-gradient-to-b ${bgGradients[idx]} border rounded-2xl p-6 relative flex flex-col justify-between shadow-xl">
       <div>
@@ -135,8 +159,8 @@ function renderPodium(top3) {
           </div>
           <div>
             <div class="flex items-center gap-1.5">
-              <h3 class="font-extrabold text-lg text-slate-100">${artist.name}</h3>
-              ${artist.is_verified ? `<span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">✓ 공식인증</span>` : ''}
+              <h3 class="font-extrabold text-lg text-slate-100">${currentLang === 'en' ? artist.name_en : artist.name}</h3>
+              ${artist.is_verified ? `<span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">${verifiedTxt}</span>` : ''}
             </div>
             <p class="text-xs text-slate-400">${artist.agency} • ${artist.fandom_name}</p>
             <p class="text-xs text-pink-400 mt-1 font-semibold italic">"${artist.signature_quote}"</p>
@@ -146,7 +170,7 @@ function renderPodium(top3) {
 
       <div class="flex items-center justify-between pt-4 border-t border-slate-800/80">
         <button onclick="openDetailModal(${artist.id})" class="text-xs text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1">
-          📊 6축 지표 차트 보기
+          ${chartTxt}
         </button>
         <button onclick="handleCheer(event, ${artist.id})" 
                 class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
@@ -154,7 +178,7 @@ function renderPodium(top3) {
                   ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' 
                   : 'bg-pink-600/30 hover:bg-pink-600/50 text-pink-300 border border-pink-500/30 shadow-md'
                 }">
-          ${isCheered ? '💖 응원완료' : '💖 응원하기'} <span id="cheer-${artist.id}">${artist.cheer_count}</span>
+          ${cheerTxt} <span id="cheer-${artist.id}">${artist.cheer_count}</span>
         </button>
       </div>
     </div>
@@ -166,6 +190,10 @@ function renderGrid(artists) {
   const container = document.getElementById("artistGrid");
   container.innerHTML = artists.map(artist => {
     const isCheered = myCheeredArtistIds.has(artist.id);
+    const cheerTxt = isCheered ? (typeof t === "function" ? t("cheeredDoneBtn") : "💖 Cheered") : (typeof t === "function" ? t("cheerBtn") : "💖 Cheer");
+    const avatarLbl = typeof t === "function" ? t("avatarLabel") : "🎨 2D Avatar";
+    const photoLbl = typeof t === "function" ? t("photoLabel") : "📸 Official Photo";
+
     return `
     <div class="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 flex flex-col justify-between transition shadow-xl hover:shadow-2xl">
       <div>
@@ -188,19 +216,19 @@ function renderGrid(artists) {
           <div class="flip-card-inner">
             <div class="flip-card-front bg-slate-800 rounded-xl overflow-hidden border border-slate-700/60">
               <img src="${artist.avatar_url}" alt="${artist.name}" class="w-full h-full object-cover">
-              <div class="absolute bottom-2 right-2 bg-slate-950/80 text-[10px] text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">🎨 2D 아바타 (클릭 플립)</div>
+              <div class="absolute bottom-2 right-2 bg-slate-950/80 text-[10px] text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">${avatarLbl}</div>
             </div>
             <div class="flip-card-back bg-slate-800 rounded-xl overflow-hidden border border-slate-700/60">
               <img src="${artist.photo_url}" alt="${artist.name}" class="w-full h-full object-cover">
-              <div class="absolute bottom-2 right-2 bg-slate-950/80 text-[10px] text-pink-300 font-bold px-2 py-0.5 rounded-md border border-pink-500/30">📸 고화질 프로필</div>
+              <div class="absolute bottom-2 right-2 bg-slate-950/80 text-[10px] text-pink-300 font-bold px-2 py-0.5 rounded-md border border-pink-500/30">${photoLbl}</div>
             </div>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 mb-1">
-          <h3 class="font-extrabold text-base text-slate-100">${artist.name}</h3>
-          <span class="text-xs text-slate-500 font-normal">(${artist.name_en})</span>
-          ${artist.is_verified ? `<span class="text-[10px] text-blue-400" title="공식 소속사 인증">✓</span>` : ''}
+          <h3 class="font-extrabold text-base text-slate-100">${currentLang === 'en' ? artist.name_en : artist.name}</h3>
+          <span class="text-xs text-slate-500 font-normal">(${currentLang === 'en' ? artist.name : artist.name_en})</span>
+          ${artist.is_verified ? `<span class="text-[10px] text-blue-400" title="Verified">✓</span>` : ''}
         </div>
         <p class="text-xs text-slate-400 mb-2">${artist.agency}</p>
         
@@ -211,7 +239,7 @@ function renderGrid(artists) {
 
       <div class="flex items-center justify-between pt-3 border-t border-slate-800/80">
         <button onclick="openDetailModal(${artist.id})" class="text-xs text-purple-400 hover:text-purple-300 font-semibold">
-          📊 지표 분석 & 피드
+          📊 ${typeof t === 'function' ? t('chartBtn') : 'Chart'}
         </button>
         <button onclick="handleCheer(event, ${artist.id})" 
                 class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${
@@ -219,7 +247,7 @@ function renderGrid(artists) {
                   ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' 
                   : 'bg-pink-600/30 hover:bg-pink-600/50 text-pink-300 border border-pink-500/30'
                 }">
-          ${isCheered ? '💖 응원완료' : '💖 응원'} <span id="cheer-${artist.id}">${artist.cheer_count}</span>
+          ${cheerTxt} <span id="cheer-${artist.id}">${artist.cheer_count}</span>
         </button>
       </div>
     </div>
@@ -235,14 +263,14 @@ function toggleCardFlip(elem) {
 async function handleCheer(e, artistId) {
   e.stopPropagation();
   if (myCheeredArtistIds.has(artistId)) {
-    alert("이미 오늘 해당 아티스트를 응원하셨습니다!");
+    alert(currentLang === 'ko' ? "이미 오늘 해당 아티스트를 응원하셨습니다!" : "You have already cheered for this artist today!");
     return;
   }
 
   try {
     const res = await fetch(`/api/artists/${artistId}/cheer`, { method: "POST" });
     if (res.status === 409) {
-      alert("이미 응원하셨습니다 (1일 1회 제약).");
+      alert(currentLang === 'ko' ? "이미 응원하셨습니다 (1일 1회 제약)." : "Already cheered today (1 per day limit).");
       myCheeredArtistIds.add(artistId);
       fetchArtists(document.getElementById("searchInput").value.trim());
       return;
@@ -286,10 +314,10 @@ async function openDetailModal(artistId) {
         <img src="${artist.avatar_url}" class="w-16 h-16 rounded-2xl border border-slate-700">
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="text-xl font-bold text-slate-100">${artist.name} (${artist.name_en})</h2>
-            ${artist.is_verified ? `<span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">✓ 소속사 공식인증</span>` : ''}
+            <h2 class="text-xl font-bold text-slate-100">${currentLang === 'en' ? artist.name_en : artist.name} (${currentLang === 'en' ? artist.name : artist.name_en})</h2>
+            ${artist.is_verified ? `<span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">${typeof t === 'function' ? t('verifiedBadge') : '✓ Verified'}</span>` : ''}
           </div>
-          <p class="text-xs text-slate-400">${artist.agency} • 팬덤: ${artist.fandom_name}</p>
+          <p class="text-xs text-slate-400">${artist.agency} • Fandom: ${artist.fandom_name}</p>
           <span class="inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-bold border border-pink-500/30">
             K-Score ${artist.kscore} (Tier ${artist.tier})
           </span>
@@ -297,7 +325,7 @@ async function openDetailModal(artistId) {
       </div>
 
       <div>
-        <h3 class="text-sm font-bold text-slate-300 mb-2">📊 6대 팩트 지표 레이더 차트</h3>
+        <h3 class="text-sm font-bold text-slate-300 mb-2">${typeof t === 'function' ? t('chartTitle') : '📊 6-Axis Radar Chart'}</h3>
         <div class="w-full h-64 flex justify-center">
           <canvas id="radarChartCanvas"></canvas>
         </div>
@@ -305,21 +333,21 @@ async function openDetailModal(artistId) {
 
       <!-- Fan Discussion Feed -->
       <div class="border-t border-slate-800 pt-4 space-y-3">
-        <h3 class="text-sm font-bold text-slate-300">💬 실시간 팬덤 한줄 토론 피드</h3>
+        <h3 class="text-sm font-bold text-slate-300">${typeof t === 'function' ? t('feedTitle') : '💬 Fandom Discussion Feed'}</h3>
         
         <div class="flex gap-2">
-          <input type="text" id="discAuthor" placeholder="닉네임" class="w-28 bg-slate-800 border border-slate-700 text-xs rounded-xl p-2 text-slate-200">
-          <input type="text" id="discContent" placeholder="최애 응원 한줄 소통..." class="flex-1 bg-slate-800 border border-slate-700 text-xs rounded-xl p-2 text-slate-200">
+          <input type="text" id="discAuthor" placeholder="${typeof t === 'function' ? t('nicknamePlaceholder') : 'Nickname'}" class="w-28 bg-slate-800 border border-slate-700 text-xs rounded-xl p-2 text-slate-200">
+          <input type="text" id="discContent" placeholder="${typeof t === 'function' ? t('commentPlaceholder') : 'Share comment...'}" class="flex-1 bg-slate-800 border border-slate-700 text-xs rounded-xl p-2 text-slate-200">
           <button onclick="submitDiscussion(${artist.id})" class="px-4 py-2 bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs rounded-xl transition">
-            등록
+            ${typeof t === 'function' ? t('postBtn') : 'Post'}
           </button>
         </div>
 
         <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-          ${discussions.length === 0 ? `<p class="text-xs text-slate-500 py-2">첫 응원 한줄 피드를 남겨보세요!</p>` : discussions.map(d => `
+          ${discussions.length === 0 ? `<p class="text-xs text-slate-500 py-2">${typeof t === 'function' ? t('noComments') : 'No comments yet.'}</p>` : discussions.map(d => `
             <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs space-y-1">
               <div class="flex items-center justify-between text-slate-400">
-                <span class="font-bold text-slate-200">${d.author} ${d.is_official ? '<span class="text-[10px] text-blue-400 font-bold">[공식소속사]</span>' : ''}</span>
+                <span class="font-bold text-slate-200">${d.author} ${d.is_official ? '<span class="text-[10px] text-blue-400 font-bold">[Official]</span>' : ''}</span>
                 <span class="text-[10px]">${(d.created_at || '').substring(0, 16)}</span>
               </div>
               <p class="text-slate-300">${d.content}</p>
@@ -336,9 +364,9 @@ async function openDetailModal(artistId) {
 }
 
 async function submitDiscussion(artistId) {
-  const author = document.getElementById("discAuthor").value.trim() || "익명팬덤";
+  const author = document.getElementById("discAuthor").value.trim() || (currentLang === 'ko' ? "익명팬덤" : "Anonymous Fan");
   const content = document.getElementById("discContent").value.trim();
-  if (!content) return alert("내용을 입력해 주세요.");
+  if (!content) return alert(currentLang === 'ko' ? "내용을 입력해 주세요." : "Please enter comment details.");
 
   try {
     await fetch(`/api/artists/${artistId}/discussions`, {
@@ -356,12 +384,16 @@ function renderRadarChart(stats) {
   const ctx = document.getElementById("radarChartCanvas").getContext("2d");
   if (chartInstance) chartInstance.destroy();
 
+  const labels = (typeof t === 'function' && i18nDict[currentLang] && i18nDict[currentLang].radarLabels)
+    ? i18nDict[currentLang].radarLabels
+    : ['Music Stream (30%)', 'Album Sales (25%)', 'YouTube Views (20%)', 'SNS Growth (15%)', 'Google Buzz (5%)', 'Fandom Power (5%)'];
+
   chartInstance = new Chart(ctx, {
     type: 'radar',
     data: {
-      labels: ['음원 스트리밍 (30%)', '음반 판매량 (25%)', '유튜브 조회수 (20%)', 'SNS 성장률 (15%)', '구글 검색 버즈 (5%)', '팬덤 화력 (5%)'],
+      labels: labels,
       datasets: [{
-        label: '6대 정량 지표 점수',
+        label: 'K-Score Fact Metrics',
         data: [
           stats.music_stream || 50,
           stats.album_sales || 50,
@@ -431,7 +463,7 @@ async function submitFeedback() {
   const content = document.getElementById("fbContent").value.trim();
   const email = document.getElementById("fbEmail").value.trim();
 
-  if (!content) return alert("의견 내용을 입력해 주세요.");
+  if (!content) return alert(currentLang === 'ko' ? "의견 내용을 입력해 주세요." : "Please enter feedback details.");
 
   try {
     const res = await fetch("/api/feedback", {
@@ -439,8 +471,7 @@ async function submitFeedback() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category, content, email })
     });
-    const data = await res.json();
-    alert("소중한 의견이 제출되었습니다. 감사합니다!");
+    alert(currentLang === 'ko' ? "소중한 의견이 제출되었습니다. 감사합니다!" : "Thank you for your feedback!");
     closeFeedbackModal();
   } catch (err) {
     console.error("Feedback failed:", err);

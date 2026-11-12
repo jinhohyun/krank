@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>K-Rank (케이랭크) 🏆 - 글로벌 K-Pop 팩트 정량 랭킹 플랫폼</title>
+  <title data-i18n="title">K-Rank 🏆 - Global K-Pop Fact-Based Quantitative Leaderboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="/static/style.css">
@@ -21,9 +21,9 @@
           </div>
           <div>
             <h1 class="text-xl font-black bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
-              K-RANK <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">v2.0 Pro</span>
+              K-RANK <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">v2.0 Global</span>
             </h1>
-            <p class="text-xs text-slate-400">100% 팩트 데이터 기반 글로벌 K-Pop 정량 랭킹</p>
+            <p class="text-xs text-slate-400" data-i18n="tagline">100% Fact Data Driven Global K-Pop Quantitative Ranking</p>
           </div>
         </div>
 
@@ -32,24 +32,32 @@
         </div>
       </div>
 
-      <!-- Action Buttons & Search -->
+      <!-- Action Buttons, Language Selector & Search -->
       <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-        <a href="/methodology" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-700 transition flex items-center gap-1">
-          📐 산출 공식
-        </a>
-        <button onclick="openSupportModal()" class="px-3.5 py-2 rounded-xl bg-pink-600/20 hover:bg-pink-600/30 text-xs font-bold text-pink-300 border border-pink-500/30 transition flex items-center gap-1">
-          ☕ 개발자 후원
-        </button>
-        <button onclick="openFeedbackModal()" class="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-xs font-bold text-purple-300 border border-purple-500/30 transition flex items-center gap-1">
-          ✉️ 의견 보내기
-        </button>
-
-        <div class="relative flex-1 md:w-64">
-          <input type="text" id="searchInput" placeholder="아티스트, 소속사, 팬덤 검색..." 
-                 class="w-full bg-slate-800/90 border border-slate-700 text-xs rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition shadow-inner">
+        <!-- Language Selector -->
+        <div class="relative">
+          <select id="langSelect" onchange="setLang(this.value)" class="bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-pink-500 transition cursor-pointer">
+            <option value="en">🌐 English (US)</option>
+            <option value="ko">🇰🇷 한국어 (KR)</option>
+          </select>
         </div>
 
-        <button id="themeToggle" class="hidden md:flex p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm border border-slate-700 transition">
+        <a href="/methodology" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-700 transition flex items-center gap-1" data-i18n="methodologyBtn">
+          📐 Methodology
+        </a>
+        <button onclick="openSupportModal()" class="px-3.5 py-2 rounded-xl bg-pink-600/20 hover:bg-pink-600/30 text-xs font-bold text-pink-300 border border-pink-500/30 transition flex items-center gap-1" data-i18n="supportBtn">
+          ☕ Support Us
+        </button>
+        <button onclick="openFeedbackModal()" class="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-xs font-bold text-purple-300 border border-purple-500/30 transition flex items-center gap-1" data-i18n="feedbackBtn">
+          ✉️ Feedback
+        </button>
+
+        <div class="relative flex-1 md:w-56">
+          <input type="text" id="searchInput" placeholder="Search artist, agency..." data-i18n-placeholder="searchPlaceholder"
+                 class="w-full bg-slate-800/90 border border-slate-700 text-xs rounded-xl px-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-pink-500 transition shadow-inner">
+        </div>
+
+        <button id="themeToggle" class="hidden md:flex p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm border border-slate-700 transition">
           🌙
         </button>
       </div>
@@ -58,15 +66,15 @@
     <!-- Sub Navigation: Category Tabs -->
     <div class="border-t border-slate-800/60 bg-slate-900/50">
       <div class="max-w-7xl mx-auto px-4 py-2 flex items-center space-x-2 overflow-x-auto text-xs scrollbar-none">
-        <button onclick="filterCategory('all')" class="cat-btn px-3 py-1.5 rounded-lg bg-pink-500 text-white font-bold transition whitespace-nowrap" data-cat="all">🔥 전체 랭킹 (K-Score)</button>
-        <button onclick="filterCategory('music')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="music">🎵 음원 퀸/왕 Top</button>
-        <button onclick="filterCategory('album')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="album">💿 음반 제왕 Top</button>
-        <button onclick="filterCategory('youtube')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="youtube">📺 유튜브 뷰왕 Top</button>
-        <button onclick="filterCategory('sns')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="sns">📲 소셜 파워 Top</button>
-        <button onclick="filterCategory('cheer')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="cheer">💖 실시간 팬덤화력</button>
+        <button onclick="filterCategory('all')" class="cat-btn px-3 py-1.5 rounded-lg bg-pink-500 text-white font-bold transition whitespace-nowrap" data-cat="all" data-i18n="tabAll">🔥 Overall (K-Score)</button>
+        <button onclick="filterCategory('music')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="music" data-i18n="tabMusic">🎵 Music Top</button>
+        <button onclick="filterCategory('album')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="album" data-i18n="tabAlbum">💿 Album Top</button>
+        <button onclick="filterCategory('youtube')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="youtube" data-i18n="tabYoutube">📺 YouTube Top</button>
+        <button onclick="filterCategory('sns')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="sns" data-i18n="tabSns">📲 Social Power</button>
+        <button onclick="filterCategory('cheer')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-cat="cheer" data-i18n="tabCheer">💖 Live Fandom Power</button>
         <span class="text-slate-700">|</span>
-        <button onclick="filterGen('5세대')" class="gen-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-gen="5세대">🌟 5세대 신예</button>
-        <button onclick="filterGen('4세대')" class="gen-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-gen="4세대">⚡ 4세대 대표</button>
+        <button onclick="filterGen('5세대')" class="gen-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-gen="5세대" data-i18n="tabGen5">🌟 5th Gen</button>
+        <button onclick="filterGen('4세대')" class="gen-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-semibold hover:bg-slate-700 transition whitespace-nowrap" data-gen="4세대" data-i18n="tabGen4">⚡ 4th Gen</button>
       </div>
     </div>
   </header>
@@ -78,10 +86,10 @@
     <section>
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-          <span>🏆 Global Top 3 Leaders</span>
-          <span class="text-xs font-normal text-slate-400 hidden sm:inline">(Spotify, Circle Chart, YouTube 팩트 데이터 정량 산출)</span>
+          <span data-i18n="top3Heading">🏆 Global Top 3 Leaders</span>
+          <span class="text-xs font-normal text-slate-400 hidden sm:inline" data-i18n="top3Subheading">(Calculated via Spotify, Circle Chart & YouTube global data)</span>
         </h2>
-        <span class="text-xs text-pink-400 font-semibold">50팀 아티스트 시딩 완료</span>
+        <span class="text-xs text-pink-400 font-semibold" data-i18n="seededCount">50 Artists Live</span>
       </div>
       <div id="podiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- JS rendered top 3 -->
@@ -92,10 +100,10 @@
     <section>
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-          <span id="gridTitle">🔥 K-Rank Overall Leaderboard</span>
+          <span id="gridTitle" data-i18n="gridTitleOverall">🔥 K-Rank Overall Leaderboard</span>
         </h2>
-        <div class="text-xs text-slate-400">
-          카드 클릭 시 <span class="text-pink-400 font-semibold">3D 아바타/실사진 플립</span> | <span class="text-purple-400 font-semibold">6축 레이더 차트</span>
+        <div class="text-xs text-slate-400" data-i18n="cardInstruction">
+          Click card for 3D avatar/photo flip | 6-axis radar analysis
         </div>
       </div>
 
@@ -119,17 +127,17 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 relative shadow-2xl space-y-4">
       <button onclick="closeSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 text-xl font-bold">&times;</button>
       <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-        <span>☕ K-Rank 개발자 후원하기</span>
+        <span data-i18n="supportTitle">☕ Support K-Rank Developers</span>
       </h3>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        K-Rank는 100% 팩트 데이터 기반 공정 랭킹을 유지하기 위해 부정 유료 투표 결제를 받지 않습니다. 서버 유지비 후원은 개발자에게 큰 힘이 됩니다!
+      <p class="text-xs text-slate-300 leading-relaxed" data-i18n="supportDesc">
+        K-Rank does not accept paid votes to preserve 100% objective fact-based rankings. Your support helps cover server costs!
       </p>
       <div class="space-y-2 pt-2">
-        <a href="https://toss.me/jinhopolirank" target="_blank" class="block w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-center text-xs rounded-xl transition shadow">
-          💙 토스(Toss)로 1초 후원하기
+        <a href="https://toss.me/jinhopolirank" target="_blank" class="block w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-center text-xs rounded-xl transition shadow" data-i18n="tossBtn">
+          💙 Support via Toss (Korea)
         </a>
-        <a href="https://qr.kakaopay.com/polirankdev" target="_blank" class="block w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-center text-xs rounded-xl transition shadow">
-          💛 카카오페이(KakaoPay)로 후원하기
+        <a href="https://qr.kakaopay.com/polirankdev" target="_blank" class="block w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-center text-xs rounded-xl transition shadow" data-i18n="kakaopayBtn">
+          💛 Support via KakaoPay (Korea)
         </a>
       </div>
     </div>
@@ -140,33 +148,34 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 relative shadow-2xl space-y-4">
       <button onclick="closeFeedbackModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 text-xl font-bold">&times;</button>
       <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-        <span>✉️ 의견 및 제보 보내기</span>
+        <span data-i18n="feedbackTitle">✉️ Send Feedback / Inquiries</span>
       </h3>
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">카테고리</label>
+          <label class="block text-slate-400 mb-1">Category</label>
           <select id="fbCategory" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200">
-            <option value="데이터오류">데이터 오류 제보</option>
-            <option value="신규아티스트">신규 아티스트 추가 요청</option>
-            <option value="기능제안">기능 개선 제안</option>
-            <option value="기타">기타 문의</option>
+            <option value="데이터오류" data-i18n="catErr">Report Data Error</option>
+            <option value="신규아티스트" data-i18n="catAdd">Request New Artist</option>
+            <option value="기능제안" data-i18n="catSugg">Feature Suggestion</option>
+            <option value="기타" data-i18n="catEtc">Other Inquiries</option>
           </select>
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">의견 내용</label>
-          <textarea id="fbContent" rows="4" placeholder="상세한 의견을 입력해 주세요..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-pink-500"></textarea>
+          <label class="block text-slate-400 mb-1">Feedback Content</label>
+          <textarea id="fbContent" rows="4" placeholder="Enter details..." data-i18n-placeholder="fbContentPlaceholder" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-pink-500"></textarea>
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">답변받을 이메일 (선택)</label>
-          <input type="email" id="fbEmail" placeholder="example@email.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200">
+          <label class="block text-slate-400 mb-1">Email (Optional)</label>
+          <input type="email" id="fbEmail" placeholder="your@email.com" data-i18n-placeholder="emailPlaceholder" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-slate-200">
         </div>
-        <button onclick="submitFeedback()" class="w-full py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition">
-          보내기
+        <button onclick="submitFeedback()" class="w-full py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition" data-i18n="sendBtn">
+          Submit
         </button>
       </div>
     </div>
   </div>
 
+  <script src="/static/i18n.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>
