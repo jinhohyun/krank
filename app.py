@@ -15,10 +15,14 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 WORKSPACE_ROOT = BASE_DIR.parent
-if str(WORKSPACE_ROOT) not in sys.path:
-    sys.path.insert(0, str(WORKSPACE_ROOT))
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 
-import krank_mvp.database as krank_db
+try:
+    import krank_mvp.database as krank_db
+except ImportError:
+    import database as krank_db
+
 get_db = krank_db.get_db
 init_db = krank_db.init_db
 from krank_core_config import KRANK_CONFIG, KrankScoringEngine
