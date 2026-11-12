@@ -121,8 +121,16 @@ def get_artists(
     for r in rows:
         d = dict(r)
         d["tags"] = json.loads(d["tags_json"]) if d.get("tags_json") else []
-        d["tags_en"] = json.loads(d["tags_en_json"]) if d.get("tags_en_json") else []
+        d["tags_en"] = json.loads(d["tags_en_json"]) if d.get("tags_en_json") else [f"#{d.get('name_en')}"]
         d["stats"] = json.loads(d["stats_json"]) if d.get("stats_json") else {}
+        if not d.get("agency_en"):
+            d["agency_en"] = d.get("agency")
+        if not d.get("fandom_name_en"):
+            d["fandom_name_en"] = d.get("fandom_name")
+        if not d.get("signature_quote_en"):
+            d["signature_quote_en"] = d.get("signature_quote")
+        if not d.get("generation_en"):
+            d["generation_en"] = d.get("generation")
         results.append(d)
 
     return results
@@ -139,8 +147,16 @@ def get_artist_detail(artist_id: int):
 
         d = dict(row)
         d["tags"] = json.loads(d["tags_json"]) if d.get("tags_json") else []
-        d["tags_en"] = json.loads(d["tags_en_json"]) if d.get("tags_en_json") else []
+        d["tags_en"] = json.loads(d["tags_en_json"]) if d.get("tags_en_json") else [f"#{d.get('name_en')}"]
         d["stats"] = json.loads(d["stats_json"]) if d.get("stats_json") else {}
+        if not d.get("agency_en"):
+            d["agency_en"] = d.get("agency")
+        if not d.get("fandom_name_en"):
+            d["fandom_name_en"] = d.get("fandom_name")
+        if not d.get("signature_quote_en"):
+            d["signature_quote_en"] = d.get("signature_quote")
+        if not d.get("generation_en"):
+            d["generation_en"] = d.get("generation")
 
     return d
 

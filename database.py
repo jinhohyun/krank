@@ -31,11 +31,11 @@ def get_db():
 def init_db():
     conn = get_db()
     with conn:
-        # Migrate or recreate table if schema updated
+        # Recreate table if bilingual columns missing
         cur = conn.cursor()
         table_info = cur.execute("PRAGMA table_info(artists)").fetchall()
         column_names = [col[1] for col in table_info]
-        if table_info and "agency_en" not in column_names:
+        if table_info and ("agency_en" not in column_names or "signature_quote_en" not in column_names):
             conn.executescript("DROP TABLE IF EXISTS artists; DROP TABLE IF EXISTS cheer_logs; DROP TABLE IF EXISTS fan_discussions;")
 
         conn.executescript("""
@@ -93,10 +93,9 @@ def init_db():
         );
         """)
 
-        # Seed data if needed
+        # Force full re-seed to ensure signature_quote_en is loaded
         cur = conn.cursor()
-        count = cur.execute("SELECT COUNT(*) FROM artists").fetchone()[0]
-        if SEED_PATH.exists() and count < 50:
+        if SEED_PATH.exists():
             cur.execute("DELETE FROM artists")
             with open(SEED_PATH, "r", encoding="utf-8") as f:
                 seed_data = json.load(f)
