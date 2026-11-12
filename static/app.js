@@ -155,7 +155,7 @@ function renderPodium(top3) {
 
         <div class="flex items-center space-x-4 mb-4">
           <div class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-md">
-            <img src="${artist.avatar_url}" alt="${artist.name}" class="w-full h-full object-cover">
+            <img src="${artist.avatar_url}" alt="${artist.name}" referrerpolicy="no-referrer" class="w-full h-full object-cover">
           </div>
           <div>
             <div class="flex items-center gap-1.5">
@@ -215,11 +215,11 @@ function renderGrid(artists) {
         <div class="perspective w-full h-48 mb-4 cursor-pointer" onclick="toggleCardFlip(this)">
           <div class="flip-card-inner">
             <div class="flip-card-front bg-slate-800 rounded-xl overflow-hidden border border-slate-700/60">
-              <img src="${artist.avatar_url}" alt="${artist.name}" class="w-full h-full object-cover">
+              <img src="${artist.avatar_url}" alt="${artist.name}" referrerpolicy="no-referrer" class="w-full h-full object-cover">
               <div class="absolute bottom-2 right-2 bg-slate-950/80 text-[10px] text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">${avatarLbl}</div>
             </div>
             <div class="flip-card-back bg-slate-800 rounded-xl overflow-hidden border border-slate-700/60">
-              <img src="${artist.photo_url}" alt="${artist.name}" class="w-full h-full object-cover">
+              <img src="${artist.photo_url}" alt="${artist.name}" referrerpolicy="no-referrer" class="w-full h-full object-cover">
               <div class="absolute bottom-2 right-2 bg-slate-950/80 text-[10px] text-pink-300 font-bold px-2 py-0.5 rounded-md border border-pink-500/30">${photoLbl}</div>
             </div>
           </div>
