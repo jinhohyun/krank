@@ -161,8 +161,7 @@ function initLang() {
   if (saved && (saved === "ko" || saved === "en")) {
     currentLang = saved;
   } else {
-    const userLang = navigator.language || navigator.userLanguage || "en";
-    currentLang = userLang.toLowerCase().startsWith("ko") ? "ko" : "en";
+    currentLang = "en";
   }
   applyLang(currentLang);
 }

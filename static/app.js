@@ -159,11 +159,11 @@ function renderPodium(top3) {
           </div>
           <div>
             <div class="flex items-center gap-1.5">
-              <h3 class="font-extrabold text-lg text-slate-100">${currentLang === 'en' ? artist.name_en : artist.name}</h3>
+              <h3 class="font-extrabold text-lg text-slate-100">${currentLang === 'en' ? (artist.name_en || artist.name) : artist.name}</h3>
               ${artist.is_verified ? `<span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">${verifiedTxt}</span>` : ''}
             </div>
-            <p class="text-xs text-slate-400">${artist.agency} • ${artist.fandom_name}</p>
-            <p class="text-xs text-pink-400 mt-1 font-semibold italic">"${artist.signature_quote}"</p>
+            <p class="text-xs text-slate-400">${currentLang === 'en' ? (artist.agency_en || artist.agency) : artist.agency} • ${currentLang === 'en' ? (artist.fandom_name_en || artist.fandom_name) : artist.fandom_name}</p>
+            <p class="text-xs text-pink-400 mt-1 font-semibold italic">"${currentLang === 'en' ? (artist.signature_quote_en || artist.signature_quote) : artist.signature_quote}"</p>
           </div>
         </div>
       </div>
@@ -203,7 +203,7 @@ function renderGrid(artists) {
               Tier ${artist.tier}
             </span>
             <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-medium">
-              ${artist.generation}
+              ${currentLang === 'en' ? (artist.generation_en || artist.generation) : artist.generation}
             </span>
           </div>
           <span class="text-xs font-black text-pink-400">
@@ -230,10 +230,10 @@ function renderGrid(artists) {
           <span class="text-xs text-slate-500 font-normal">(${currentLang === 'en' ? artist.name : artist.name_en})</span>
           ${artist.is_verified ? `<span class="text-[10px] text-blue-400" title="Verified">✓</span>` : ''}
         </div>
-        <p class="text-xs text-slate-400 mb-2">${artist.agency}</p>
+        <p class="text-xs text-slate-400 mb-2">${currentLang === 'en' ? (artist.agency_en || artist.agency) : artist.agency}</p>
         
         <div class="flex flex-wrap gap-1 mb-4">
-          ${(artist.tags || []).map(tag => `<span class="text-[10px] px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-700/50">${tag}</span>`).join("")}
+          ${(currentLang === 'en' && artist.tags_en && artist.tags_en.length ? artist.tags_en : artist.tags || []).map(tag => `<span class="text-[10px] px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-700/50">${tag}</span>`).join("")}
         </div>
       </div>
 
@@ -317,7 +317,7 @@ async function openDetailModal(artistId) {
             <h2 class="text-xl font-bold text-slate-100">${currentLang === 'en' ? artist.name_en : artist.name} (${currentLang === 'en' ? artist.name : artist.name_en})</h2>
             ${artist.is_verified ? `<span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">${typeof t === 'function' ? t('verifiedBadge') : '✓ Verified'}</span>` : ''}
           </div>
-          <p class="text-xs text-slate-400">${artist.agency} • Fandom: ${artist.fandom_name}</p>
+          <p class="text-xs text-slate-400">${currentLang === 'en' ? (artist.agency_en || artist.agency) : artist.agency} • Fandom: ${currentLang === 'en' ? (artist.fandom_name_en || artist.fandom_name) : artist.fandom_name}</p>
           <span class="inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-bold border border-pink-500/30">
             K-Score ${artist.kscore} (Tier ${artist.tier})
           </span>
