@@ -12,7 +12,10 @@ class TestRankCore(unittest.TestCase):
     def setUp(self):
         self.db_path = "test_core.db"
         if os.path.exists(self.db_path):
-            os.remove(self.db_path)
+            try:
+                os.remove(self.db_path)
+            except Exception:
+                pass
 
         self.config = PlatformConfig(
             platform_id="test_platform",
@@ -29,8 +32,15 @@ class TestRankCore(unittest.TestCase):
         self.engine = WeightedScoringEngine(self.config.weights)
 
     def tearDown(self):
+        if hasattr(self, 'db'):
+            del self.db
+        import gc
+        gc.collect()
         if os.path.exists(self.db_path):
-            os.remove(self.db_path)
+            try:
+                os.remove(self.db_path)
+            except Exception:
+                pass
 
     def test_database_and_scoring(self):
         # Sample Entity 추가

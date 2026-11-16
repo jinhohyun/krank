@@ -130,9 +130,13 @@
         <span data-i18n="supportTitle">☕ Support K-Rank Developers</span>
       </h3>
       <p class="text-xs text-slate-300 leading-relaxed" data-i18n="supportDesc">
-        K-Rank does not accept paid votes to preserve 100% objective fact-based rankings. Your support helps cover server costs!
+        K-Rank does not accept paid votes — rankings come from automatically collected fact metrics. Your support helps cover server costs!
       </p>
       <div class="space-y-2 pt-2">
+        <a id="support-bmc-btn" href="https://buymeacoffee.com/javaleo" target="_blank" rel="noopener noreferrer"
+           class="block w-full py-3 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold text-center text-xs rounded-xl transition shadow">
+          ☕ Buy Me a Coffee
+        </a>
         <a href="https://toss.me/jinhopolirank" target="_blank" class="block w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-center text-xs rounded-xl transition shadow" data-i18n="tossBtn">
           💙 Support via Toss (Korea)
         </a>
@@ -177,5 +181,18 @@
 
   <script src="/static/i18n.js"></script>
   <script src="/static/app.js"></script>
+  <script>
+    // 개발자 후원(Buy Me a Coffee) — rank_core 공통 링크. 2026-11-16
+    (function () {
+      fetch('/api/support').then(function (r) { return r.json(); }).then(function (d) {
+        var btn = document.getElementById('support-bmc-btn');
+        var u = (d && d.dev_buymeacoffee_url ? d.dev_buymeacoffee_url : '').trim();
+        if (!btn) return;
+        if (u.indexOf('https://') === 0 || u.indexOf('http://') === 0) {
+          btn.href = u;
+        }
+      }).catch(function () { /* 후원 링크 실패는 사이트 동작에 영향 없음 */ });
+    })();
+  </script>
 </body>
 </html>

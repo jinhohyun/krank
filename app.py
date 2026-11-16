@@ -27,6 +27,7 @@ get_db = krank_db.get_db
 init_db = krank_db.init_db
 from krank_core_config import KRANK_CONFIG, KrankScoringEngine
 from rank_core import create_ranking_app, BaseDatabaseManager
+import scoring  # K-Score 엔진 v2 — 결측 재정규화·백분위·분포 Tier·상관분석 (2026-11-16)
 
 # Rank Core 서브 앱 마운트
 core_engine = KrankScoringEngine(KRANK_CONFIG.weights)
@@ -117,6 +118,22 @@ def get_artists(
 
         rows = cur.execute(sql, params).fetchall()
 
+    # 분포 기반 Tier·백분위 산출 (2026-11-16 레드팀 대응)
+    #   기존 절대 임계값 Tier 는 50명 전원이 86점 이상이라 B·C 가 0명 = 변별력 없음.
+    #   순위 기반 등급과 백분위를 함께 내려준다.
+    total_n = len(rows)
+    rank_map = {}
+    # kscore 내림차순 정렬 기준 순위(동점은 같은 순위)
+    ordered = sorted(rows, key=lambda x: (-(x["kscore"] if x["kscore"] is not None else -1), x["id"]))
+    prev_score, prev_rank = None, 0
+    for idx, rr in enumerate(ordered, start=1):
+        sc = rr["kscore"]
+        if prev_score is not None and sc == prev_score:
+            rank_map[rr["id"]] = prev_rank
+        else:
+            rank_map[rr["id"]] = idx
+            prev_rank, prev_score = idx, sc
+
     results = []
     for r in rows:
         d = dict(r)
@@ -131,6 +148,24 @@ def get_artists(
             d["signature_quote_en"] = d.get("signature_quote")
         if not d.get("generation_en"):
             d["generation_en"] = d.get("generation")
+
+        # 신뢰도·커버리지·분포 등급 (레드팀 P1·P2)
+        try:
+            v2 = scoring.calculate_kscore_v2(d.get("stats") or {})
+        except Exception:
+            v2 = {"kscore": d.get("kscore"), "data_completeness": 1.0,
+                  "available_metrics": [], "missing_metrics": [], "confidence": "low"}
+        rank = rank_map.get(d["id"], 0)
+        d["rank"] = rank
+        d["kscore_percentile"] = scoring.calculate_percentile(rank, total_n) if rank else 0.0
+        d["tier_distribution"] = scoring.calculate_tier_by_rank(rank, total_n) if rank else d.get("tier")
+        d["data_completeness"] = v2.get("data_completeness", 1.0)
+        d["missing_metrics"] = v2.get("missing_metrics", [])
+        d["confidence"] = v2.get("confidence", "low")
+        d["assessment_label"] = ("데이터 부족" if (v2.get("data_completeness") or 0) < 0.8
+                                 else "정량 평가")
+        # 데이터 기준 시점 노출 (레드팀 P4 — 투명성)
+        d["data_as_of"] = (d.get("updated_at") or "")[:10] or None
         results.append(d)
 
     return results
@@ -265,3 +300,23 @@ def submit_feedback(data: dict):
         )
 
     return {"status": "success", "message": "Feedback received. Thank you!"}
+
+
+@app.get("/api/support")
+def read_support():
+    """개발자 후원 링크 조회 — rank_core 공통 소스(Buy Me a Coffee).
+
+    2026-11-16: polirank 와 동일한 링크를 쓴다. rank_core 를 고치면 두 사이트가
+    함께 바뀌므로 사이트별로 링크를 따로 관리하지 않는다.
+    """
+    try:
+        from rank_core import get_support_links
+        links = get_support_links()
+    except Exception:
+        import os
+        links = {
+            "buymeacoffee": os.environ.get("BUYMEACOFFEE_URL", "https://buymeacoffee.com/javaleo"),
+            "support_message": "이 사이트는 1인 개발자가 운영합니다. 커피 한 잔으로 응원해 주세요!",
+        }
+    return {"status": "success", "dev_buymeacoffee_url": links.get("buymeacoffee", ""),
+            "support_message": links.get("support_message", "")}

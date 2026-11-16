@@ -44,8 +44,18 @@
         <span data-i18n="methMainTitle">📐 K-Score 6-Axis Formula & Methodology</span>
       </h2>
       <p class="text-sm text-slate-300 leading-relaxed" data-i18n="methDesc">
-        K-Rank completely eliminates subjective voting, manipulation, and paid voting fees. We calculate objective K-Scores (0-100) using 100% verified global fact metrics: Spotify, Circle Chart, YouTube, SNS, Google Trends, and real-time fandom power.
+        K-Rank does not accept paid voting — scores come from <strong>automatically collected fact metrics with no paid or manual intervention</strong>: Spotify, Circle Chart, YouTube, SNS, Google Trends, and fandom power.
       </p>
+
+      <div class="p-5 rounded-2xl bg-slate-950 border border-amber-500/30 text-xs text-amber-200/90 leading-relaxed">
+        <strong>⚠️ 데이터 투명성 고지</strong><br>
+        · <strong>지표별 수집 출처</strong>: Spotify Web API(음원), Circle Chart(앨범), YouTube Data API(조회), X/Instagram 공개 지표(SNS), Google Trends(버즈)<br>
+        · <strong>갱신 주기</strong>: 지표별 주 1회 자동 수집 · 페이지 하단 <code>data_as_of</code> 참조<br>
+        · <strong>표본 범위</strong>: K-컬처 주요 아티스트 50인 (선정 기준: 데뷔 2007년 이후 · 글로벌 팩트 지표가 존재하는 활동 아티스트)<br>
+        · <strong>결측 처리</strong>: 데이터가 없는 지표는 50점으로 대체하지 않고 <strong>가중치를 재정규화</strong>합니다. 커버리지 50% 미만은 랭킹에서 제외합니다.<br>
+        · <strong>등급 산정</strong>: 원점수와 별개로 <strong>분포 기반 백분위 등급</strong>(상위 10% S+ … 하위 10% C)을 함께 제공합니다.<br>
+        · 이 점수는 <strong>대중적 성과 지표의 정량 합산</strong>이며, 아티스트의 예술성·인성·작품성을 평가하지 않습니다.
+      </div>
 
       <div class="p-6 rounded-2xl bg-slate-950 border border-purple-500/30 text-center font-mono text-xs sm:text-sm text-purple-300 shadow-inner overflow-x-auto">
         K-Score = (0.30 × S_Music) + (0.25 × S_Album) + (0.20 × S_YouTube) + (0.15 × S_SNS) + (0.05 × S_Buzz) + (0.05 × S_Power)
