@@ -91,6 +91,18 @@ def init_db():
             email TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         );
+
+        -- 공개 쓰기(토론·피드백) 요청 로그: IP+UA 해시 기준 윈도우 레이트리밋용 (2026-11-22)
+        CREATE TABLE IF NOT EXISTS post_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip_hash TEXT NOT NULL,
+            endpoint TEXT NOT NULL,
+            artist_id INTEGER,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_post_logs_window
+            ON post_logs (endpoint, ip_hash, created_at);
         """)
 
         # Force full re-seed to ensure signature_quote_en is loaded

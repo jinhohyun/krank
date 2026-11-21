@@ -20,6 +20,9 @@ class TestKRankGlobal(unittest.TestCase):
         conn = get_db()
         with conn:
             conn.execute("DELETE FROM cheer_logs")
+            conn.execute("DELETE FROM post_logs")
+            conn.execute("DELETE FROM fan_discussions")
+        conn.close()
 
     def test_01_scoring_algorithm(self):
         stats = {
@@ -77,6 +80,41 @@ class TestKRankGlobal(unittest.TestCase):
         })
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()["status"], "success")
+
+    def test_07_discussion_rate_limit(self):
+        """공개 토론 도배 방지: 10분 5건까지, 6번째는 429."""
+        for i in range(5):
+            res = self.client.post("/api/artists/1/discussions", json={
+                "author": "팬", "content": f"응원합니다 {i}"
+            })
+            self.assertEqual(res.status_code, 200, res.text)
+        res = self.client.post("/api/artists/1/discussions", json={
+            "author": "팬", "content": "여섯번째"
+        })
+        self.assertEqual(res.status_code, 429)
+        self.assertIn("Retry-After", res.headers)
+
+    def test_08_discussion_validation_and_tag_strip(self):
+        """200자 상한·태그 제거: 저장 전에 서버가 정규화한다."""
+        too_long = self.client.post("/api/artists/2/discussions", json={"content": "x" * 201})
+        self.assertEqual(too_long.status_code, 400)
+
+        res = self.client.post("/api/artists/2/discussions", json={
+            "author": "<b>팬</b>", "content": "<script>alert(1)</script>안녕"
+        })
+        self.assertEqual(res.status_code, 200, res.text)
+        conn = get_db()
+        row = conn.execute(
+            "SELECT author, content FROM fan_discussions WHERE artist_id = 2 ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        conn.close()
+        self.assertNotIn("<", row["author"])
+        self.assertNotIn("<", row["content"])
+        self.assertEqual(row["content"], "alert(1)안녕")
+
+    def test_09_discussion_unknown_artist_404(self):
+        res = self.client.post("/api/artists/99999/discussions", json={"content": "응원"})
+        self.assertEqual(res.status_code, 404)
 
 if __name__ == "__main__":
     unittest.main()

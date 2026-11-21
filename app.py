@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import re
 import uuid
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -62,6 +63,46 @@ def _generate_ip_hash(request: Request) -> str:
     ip = _get_client_ip(request)
     ua = request.headers.get("User-Agent", "")
     return hashlib.sha256(f"{ip}:{ua}:krank_salt".encode("utf-8")).hexdigest()
+
+
+# ── 공개 쓰기 엔드포인트 보호 (2026-11-22 야간 감사) ────────────────────────────
+# 토론·피드백은 로그인 없이 누구나 POST 할 수 있는데 상한도 검증도 없어서
+#   (1) 초당 대량 도배(스팸) (2) 200자 넘는 본문 (3) HTML/스크립트 삽입이 가능했다.
+# 응원(cheer)만 3중 중복 방지가 있고 토론에는 아무 장치가 없던 비대칭을 맞춘다.
+DISCUSSION_MAX_LEN = 200
+DISCUSSION_AUTHOR_MAX_LEN = 20
+DISCUSSION_WINDOW_SEC = 600
+DISCUSSION_MAX_POSTS = 5          # 동일 IP+UA 기준 10분에 5건
+FEEDBACK_MAX_LEN = 1000
+FEEDBACK_WINDOW_SEC = 3600
+FEEDBACK_MAX_POSTS = 3            # 동일 IP+UA 기준 1시간에 3건
+
+_HTML_TAG_RE = re.compile(r"<[^>]*>")
+_KEEP_CONTROL = {"\n", "\t"}
+
+
+def _clean_text(value: str, max_len: int) -> str:
+    """태그 제거 + 제어문자 제거 + 길이 상한. 서버는 저장 전에 정규화한다."""
+    text = (value or "").strip()
+    text = _HTML_TAG_RE.sub("", text)
+    text = "".join(ch for ch in text if ch in _KEEP_CONTROL or ch.isprintable())
+    return text[:max_len]
+
+
+def _post_rate_limited(conn, ip_hash: str, endpoint: str, max_posts: int, window_sec: int) -> bool:
+    row = conn.execute(
+        "SELECT COUNT(*) AS c FROM post_logs "
+        "WHERE ip_hash = ? AND endpoint = ? AND created_at >= datetime('now', ?)",
+        (ip_hash, endpoint, f"-{window_sec} seconds"),
+    ).fetchone()
+    return bool(row and row["c"] >= max_posts)
+
+
+def _log_post(conn, ip_hash: str, endpoint: str, artist_id: Optional[int] = None) -> None:
+    conn.execute(
+        "INSERT INTO post_logs (ip_hash, endpoint, artist_id) VALUES (?, ?, ?)",
+        (ip_hash, endpoint, artist_id),
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -262,42 +303,68 @@ def get_discussions(artist_id: int):
 
 
 @app.post("/api/artists/{artist_id}/discussions")
-def create_discussion(artist_id: int, data: dict):
-    """Post a new fan discussion comment."""
-    stance = data.get("stance", "💖 응원")
-    author = data.get("author", "익명팬덤")
-    content = data.get("content", "").strip()
+def create_discussion(artist_id: int, data: dict, request: Request):
+    """Post a new fan discussion comment (rate limited, length capped, tags stripped)."""
+    stance = _clean_text(data.get("stance", "💖 응원"), 20)
+    author = _clean_text(data.get("author", "익명팬덤"), DISCUSSION_AUTHOR_MAX_LEN) or "익명팬덤"
+    content = _clean_text(data.get("content", ""), DISCUSSION_MAX_LEN)
     is_official = 1 if data.get("is_official") else 0
 
     if not content:
         raise HTTPException(status_code=400, detail="Content cannot be empty")
+    if len((data.get("content") or "").strip()) > DISCUSSION_MAX_LEN:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Content is limited to {DISCUSSION_MAX_LEN} characters.",
+        )
+
+    ip_hash = _generate_ip_hash(request)
 
     conn = get_db()
     with conn:
+        if _post_rate_limited(conn, ip_hash, "discussion", DISCUSSION_MAX_POSTS, DISCUSSION_WINDOW_SEC):
+            raise HTTPException(
+                status_code=429,
+                detail="Too many comments. Please try again later.",
+                headers={"Retry-After": str(DISCUSSION_WINDOW_SEC)},
+            )
+        row = conn.execute("SELECT id FROM artists WHERE id = ?", (artist_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Artist not found")
         conn.execute(
             "INSERT INTO fan_discussions (artist_id, stance, author, content, is_official) VALUES (?, ?, ?, ?, ?)",
             (artist_id, stance, author, content, is_official)
         )
+        _log_post(conn, ip_hash, "discussion", artist_id)
 
     return {"status": "success"}
 
 
 @app.post("/api/feedback")
-def submit_feedback(data: dict):
-    """Submit user feedback or donation inquiry."""
-    category = data.get("category", "의견")
-    content = data.get("content", "").strip()
-    email = data.get("email", "").strip()
+def submit_feedback(data: dict, request: Request):
+    """Submit user feedback or donation inquiry (rate limited, length capped)."""
+    category = _clean_text(data.get("category", "의견"), 20)
+    content = _clean_text(data.get("content", ""), FEEDBACK_MAX_LEN)
+    email = _clean_text(data.get("email", ""), 120)
 
     if not content:
         raise HTTPException(status_code=400, detail="Feedback content required")
 
+    ip_hash = _generate_ip_hash(request)
+
     conn = get_db()
     with conn:
+        if _post_rate_limited(conn, ip_hash, "feedback", FEEDBACK_MAX_POSTS, FEEDBACK_WINDOW_SEC):
+            raise HTTPException(
+                status_code=429,
+                detail="Too many feedback submissions. Please try again later.",
+                headers={"Retry-After": str(FEEDBACK_WINDOW_SEC)},
+            )
         conn.execute(
             "INSERT INTO feedback (category, content, email) VALUES (?, ?, ?)",
             (category, content, email)
         )
+        _log_post(conn, ip_hash, "feedback")
 
     return {"status": "success", "message": "Feedback received. Thank you!"}
 

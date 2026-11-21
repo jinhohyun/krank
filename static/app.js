@@ -1,5 +1,16 @@
 /* K-Rank Frontend Application Logic (v2.0 Global i18n) */
 
+// 공개 입력값(토론 작성자·본문)을 innerHTML 에 넣을 때 반드시 통과시키는 이스케이프 (2026-11-22)
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[ch]));
+}
+
 let artistsData = [];
 let myCheeredArtistIds = new Set();
 let chartInstance = null;
@@ -347,10 +358,10 @@ async function openDetailModal(artistId) {
           ${discussions.length === 0 ? `<p class="text-xs text-slate-500 py-2">${typeof t === 'function' ? t('noComments') : 'No comments yet.'}</p>` : discussions.map(d => `
             <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs space-y-1">
               <div class="flex items-center justify-between text-slate-400">
-                <span class="font-bold text-slate-200">${d.author} ${d.is_official ? '<span class="text-[10px] text-blue-400 font-bold">[Official]</span>' : ''}</span>
+                <span class="font-bold text-slate-200">${escapeHtml(d.author)} ${d.is_official ? '<span class="text-[10px] text-blue-400 font-bold">[Official]</span>' : ''}</span>
                 <span class="text-[10px]">${(d.created_at || '').substring(0, 16)}</span>
               </div>
-              <p class="text-slate-300">${d.content}</p>
+              <p class="text-slate-300">${escapeHtml(d.content)}</p>
             </div>
           `).join("")}
         </div>
@@ -367,13 +378,23 @@ async function submitDiscussion(artistId) {
   const author = document.getElementById("discAuthor").value.trim() || (currentLang === 'ko' ? "익명팬덤" : "Anonymous Fan");
   const content = document.getElementById("discContent").value.trim();
   if (!content) return alert(currentLang === 'ko' ? "내용을 입력해 주세요." : "Please enter comment details.");
+  if (content.length > 200) return alert(currentLang === 'ko' ? "한줄 토론은 200자까지 쓸 수 있습니다." : "Comments are limited to 200 characters.");
 
   try {
-    await fetch(`/api/artists/${artistId}/discussions`, {
+    const res = await fetch(`/api/artists/${artistId}/discussions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ author, content, stance: "💖 응원" })
     });
+    if (!res.ok) {
+      // 429(도배 제한)·400(검증 실패)을 성공으로 착각하고 새로고침하던 문제 수정
+      const err = await res.json().catch(() => ({}));
+      const msg = res.status === 429
+        ? (currentLang === 'ko' ? "잠시 후 다시 시도해 주세요. (도배 방지 제한)" : "Please try again in a few minutes.")
+        : (err.detail || (currentLang === 'ko' ? "등록에 실패했습니다." : "Failed to post."));
+      alert(msg);
+      return;
+    }
     openDetailModal(artistId);
   } catch (err) {
     console.error("Failed to post discussion:", err);
