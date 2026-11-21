@@ -203,7 +203,7 @@ function renderGrid(artists) {
     const isCheered = myCheeredArtistIds.has(artist.id);
     const cheerTxt = isCheered ? (typeof t === "function" ? t("cheeredDoneBtn") : "💖 Cheered") : (typeof t === "function" ? t("cheerBtn") : "💖 Cheer");
     const avatarLbl = typeof t === "function" ? t("avatarLabel") : "🎨 2D Avatar";
-    const photoLbl = typeof t === "function" ? t("photoLabel") : "📸 Official Photo";
+    const photoLbl = typeof t === "function" ? t("photoLabel") : "📷 Stock Image (not official)";
 
     return `
     <div class="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 flex flex-col justify-between transition shadow-xl hover:shadow-2xl">
