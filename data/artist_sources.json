@@ -1,0 +1,16 @@
+{
+  "_note": "K-Rank 지표 수집 소스 매핑 (초안). 값은 공식 채널/아티스트 ID 로 채워 넣는다. 비어 있으면 해당 아티스트는 건너뛴다 (임의 추정 금지).",
+  "_sources": {
+    "youtube": "https://www.googleapis.com/youtube/v3/channels (공식, 채널 ID: UC... 24자)",
+    "spotify": "https://api.spotify.com/v1/artists/{id} (공식, 아티스트 ID: 22자 base62)",
+    "lastfm": "https://ws.audioscrobbler.com/2.0/?method=artist.getInfo (공식, 아티스트 이름)"
+  },
+  "artists": {
+    "BTS": { "youtube_channel_id": "", "spotify_artist_id": "", "lastfm_name": "BTS" },
+    "BLACKPINK": { "youtube_channel_id": "", "spotify_artist_id": "", "lastfm_name": "BLACKPINK" },
+    "NewJeans": { "youtube_channel_id": "", "spotify_artist_id": "", "lastfm_name": "NewJeans" },
+    "Stray Kids": { "youtube_channel_id": "", "spotify_artist_id": "", "lastfm_name": "Stray Kids" },
+    "SEVENTEEN": { "youtube_channel_id": "", "spotify_artist_id": "", "lastfm_name": "SEVENTEEN" },
+    "aespa": { "youtube_channel_id": "", "spotify_artist_id": "", "lastfm_name": "aespa" }
+  }
+}
