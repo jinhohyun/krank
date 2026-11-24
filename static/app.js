@@ -16,6 +16,8 @@ let myCheeredArtistIds = new Set();
 let chartInstance = null;
 let currentSort = "kscore";
 let currentGen = "";
+let photoCredits = {};
+let photoCreditsLoaded = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof initLang === "function") {
@@ -53,7 +55,32 @@ async function fetchMyCheers() {
   }
 }
 
+async function loadPhotoCredits() {
+  if (photoCreditsLoaded) return;
+  try {
+    const res = await fetch("/static/photo_credits.json", { cache: "no-store" });
+    if (!res.ok) return;
+    const data = await res.json();
+    const next = {};
+    for (const credit of data.credits || []) next[credit.id] = credit;
+    photoCredits = next;
+    photoCreditsLoaded = true;
+  } catch (err) {
+    console.error("Failed to load photo credits:", err);
+  }
+}
+
+function photoCreditLine(artistId) {
+  const credit = photoCredits[artistId];
+  if (!credit || !credit.source_url) return "";
+  const author = escapeHtml(credit.author || "Wikimedia Commons");
+  const license = escapeHtml(credit.license || "");
+  const source = escapeHtml(credit.source_url);
+  return `<a href="${source}" target="_blank" rel="noopener noreferrer" class="mt-1 block text-[10px] text-slate-500 hover:text-slate-400">📷 ${author} / ${license} / Wikimedia Commons</a>`;
+}
+
 async function fetchArtists(query = "") {
+  await loadPhotoCredits();
   try {
     let url = `/api/artists?sort=${currentSort}`;
     if (query) url += `&query=${encodeURIComponent(query)}`;
@@ -203,7 +230,9 @@ function renderGrid(artists) {
     const isCheered = myCheeredArtistIds.has(artist.id);
     const cheerTxt = isCheered ? (typeof t === "function" ? t("cheeredDoneBtn") : "💖 Cheered") : (typeof t === "function" ? t("cheerBtn") : "💖 Cheer");
     const avatarLbl = typeof t === "function" ? t("avatarLabel") : "🎨 2D Avatar";
-    const photoLbl = typeof t === "function" ? t("photoLabel") : "📷 Stock Image (not official)";
+    const photoLbl = photoCredits[artist.id]
+      ? (typeof t === "function" ? t("photoCreditBadge") : "📷 Wikimedia Commons (CC)")
+      : (typeof t === "function" ? t("photoLabel") : "📷 Stock Image (not official)");
 
     return `
     <div class="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 flex flex-col justify-between transition shadow-xl hover:shadow-2xl">
@@ -236,6 +265,7 @@ function renderGrid(artists) {
           </div>
         </div>
 
+        ${photoCreditLine(artist.id)}
         <div class="flex items-center gap-1.5 mb-1">
           <h3 class="font-extrabold text-base text-slate-100">${currentLang === 'en' ? artist.name_en : artist.name}</h3>
           <span class="text-xs text-slate-500 font-normal">(${currentLang === 'en' ? artist.name : artist.name_en})</span>

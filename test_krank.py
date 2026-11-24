@@ -2,6 +2,7 @@
 
 import unittest
 import json
+from pathlib import Path
 from fastapi.testclient import TestClient
 
 from app import app
@@ -115,6 +116,31 @@ class TestKRankGlobal(unittest.TestCase):
     def test_09_discussion_unknown_artist_404(self):
         res = self.client.post("/api/artists/99999/discussions", json={"content": "응원"})
         self.assertEqual(res.status_code, 404)
+
+    def test_10_artist_photo_files_and_credits(self):
+        conn = get_db()
+        with conn:
+            rows = conn.execute("SELECT id, photo_url FROM artists ORDER BY id").fetchall()
+        self.assertEqual(len(rows), 50, "Database should still contain 50 artists")
+
+        credits_path = Path("static") / "photo_credits.json"
+        self.assertTrue(credits_path.is_file(), "photo credits file is missing")
+        credits = json.loads(credits_path.read_text(encoding="utf-8")).get("credits", [])
+        self.assertEqual(len(credits), 50, "Every artist needs a photo credit")
+
+        for row in rows:
+            url = row["photo_url"] or ""
+            self.assertTrue(url.startswith("/static/artists/"), url)
+            relative = url.split("?")[0].lstrip("/")
+            path = Path(relative)
+            self.assertTrue(path.is_file(), relative)
+            self.assertGreater(path.stat().st_size, 10000, relative)
+
+        for credit in credits:
+            self.assertTrue(credit.get("author"), "author missing for " + str(credit.get("id")))
+            self.assertTrue(credit.get("license"), "license missing for " + str(credit.get("id")))
+            source = str(credit.get("source_url", ""))
+            self.assertTrue(source.startswith("https://commons.wikimedia.org/wiki/File:"), source)
 
 if __name__ == "__main__":
     unittest.main()
